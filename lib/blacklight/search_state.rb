@@ -84,7 +84,10 @@ module Blacklight
     # catalog/index with their new facet choice.
     def add_facet_params_and_redirect(field, item)
       new_params = add_facet_params(field, item)
-
+      # following "more" links should take you to more responses, not the same search again
+      if !new_params['f'].nil? && !new_params['f'][blacklight_config.index['group']].nil? && new_params['page'].nil?
+        new_params['page'] = 2
+      end
       # Delete any request params from facet-specific action, needed
       # to redir to index action properly.
       request_keys = blacklight_config.facet_paginator_class.request_keys
@@ -174,8 +177,8 @@ module Blacklight
       facet_config = facet_configuration_for_field(field)
 
       url_field = facet_config.key
-
-      value = facet_value_for_facet_item(item)
+      # we don't care about case in our index, so any facet term that isn't downcase always yields zero results
+      value = facet_value_for_facet_item(item).downcase
 
       p[:f] = (p[:f] || {}).dup # the command above is not deep in rails3, !@#$!@#$
       p[:f][url_field] = (p[:f][url_field] || []).dup
