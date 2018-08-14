@@ -137,6 +137,11 @@ module Blacklight
     def processed_parameters
       request.tap do |request_parameters|
         processor_chain.each do |method_name|
+          # use group offset instead of start for facet searches that aren't limited to a particular group
+          if request_parameters['fq'].select{|f| f=~ /{!term f=source}/}.length == 0 && !request_parameters['start'].nil?
+            request_parameters['group.offset'] = request_parameters['start']
+            request_parameters.delete('start')
+          end
           send(method_name, request_parameters)
         end
       end
