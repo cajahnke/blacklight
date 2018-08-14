@@ -27,7 +27,8 @@
     %>
 
     <%= link_to(content_tag(:span, '✖', class: 'remove-icon') + accessible_remove_label,
-			options[:remove], class: 'btn btn-outline-secondary remove'
+			options[:remove], class: 'btn btn-outline-secondary remove',
+        :onclick => 'setTimeout(function(){reTab();},500)'
 		) %>
   <%- end -%>
 </span>
