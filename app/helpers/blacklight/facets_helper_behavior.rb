@@ -152,7 +152,7 @@ module Blacklight::FacetsHelperBehavior
     content_tag(:span, class: "facet-label") do
       content_tag(:span, facet_display_value(facet_field, item), class: "selected") +
       # remove link
-      link_to(remove_href, class: "remove") do
+      link_to(remove_href, class: "remove", :onclick => "setTimeout(function(){reTab();},500)") do
         content_tag(:span, '✖', class: "remove-icon") +
         content_tag(:span, '[remove]', class: 'sr-only')
       end
