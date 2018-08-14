@@ -245,8 +245,9 @@ module Blacklight::BlacklightHelperBehavior
   ##
   # Should we render a grouped response (because the response
   # contains a grouped response instead of the normal response)
+  # if response is grouped but has only one group, shenanigans will be used to act like the response is not grouped
   def render_grouped_response? response = @response
-    response.grouped?
+    response.grouped? && response.group['ngroups'] > 1
   end
 
   ##
