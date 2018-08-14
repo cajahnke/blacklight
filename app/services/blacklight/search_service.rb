@@ -31,7 +31,8 @@ module Blacklight
 
       if response.grouped? && grouped_key_for_results
         [response.group(grouped_key_for_results), []]
-      elsif response.grouped? && response.grouped.length == 1
+      # I'm pretty sure response.grouped.length will always be 1
+      elsif response.grouped? && response['grouped'][blacklight_config.index['group']]['groups'].length == 1
         [response.grouped.first, []]
       else
         [response, response.documents]
@@ -63,7 +64,8 @@ module Blacklight
       p = previous_and_next_document_params(index)
       query = search_builder.with(request_params).start(p.delete(:start)).rows(p.delete(:rows)).merge(extra_controller_params).merge(p)
       response = repository.search(query)
-      document_list = response.documents
+      # treat single group as ungrouped
+      document_list = response.documents.nil? ? (response.response['docs'].nil? ? response.grouped[0].group['groups'][0]['doclist']['docs'].collect{|doc| SolrDocument.new(doc)} : response.response['docs'].collect{|doc| SolrDocument.new(doc)}) : response.documents
 
       # only get the previous doc if there is one
       prev_doc = document_list.first if index > 0
