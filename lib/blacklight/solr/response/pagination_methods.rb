@@ -6,12 +6,12 @@ module Blacklight::Solr::Response::PaginationMethods
   def limit_value #:nodoc:
     rows
   end
-
+#use start from group response if it is greater than start in solr response
   def offset_value #:nodoc:
-    start
+    start == 0 && !@group.nil? && @group['groups'][0]['doclist']['start'] > 0 ? @group['groups'][0]['doclist']['start'] : start
   end
-
+# if a single group is returned, use its matches value instead of total
   def total_count #:nodoc:
-    total
+    total == 1 && !@group.nil? && @group['matches'] > 1 ? @group['matches'] : total
   end
 end
