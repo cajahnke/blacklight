@@ -53,7 +53,7 @@ module Blacklight::CatalogHelperBehavior
 
     # grouped response objects need special handling
     end_num = if collection.respond_to?(:groups) && render_grouped_response?(collection)
-                collection.groups.length
+                collection.group['matches']
               else
                 collection.limit_value
               end
@@ -87,7 +87,10 @@ module Blacklight::CatalogHelperBehavior
   # @param [Integer] offset additional offset to incremenet the counter by
   # @return [Integer]
   def document_counter_with_offset idx, offset = nil
-    offset ||= @response.start if @response
+    offset ||= @response['group']['groups'][0]['doclist']['start'] if @response['group']
+    #Hacky: sometimes @response['group'] is undefined but @response.group will fetch it, in other circumstances this throws error
+    offset ||= @response.group['groups'][0]['doclist']['start'] if @response.response['docs'].nil? && @response['group'].nil?
+    offset ||= @response.start if @response && @response['group'].nil?
     offset ||= 0
 
     unless render_grouped_response?
@@ -183,7 +186,8 @@ module Blacklight::CatalogHelperBehavior
   # @return [Boolean]
   def show_pagination? response = nil
     response ||= @response
-    response.limit_value > 0
+    #Hacky
+    response.limit_value.nil? || (response.limit_value > 0 && (response['group'].nil? || response['group']['ngroups'].nil? || response.group['ngroups'] < 2))
   end
 
   ##
