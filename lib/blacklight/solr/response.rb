@@ -49,7 +49,14 @@ class Blacklight::Solr::Response < ActiveSupport::HashWithIndifferentAccess
   end
 
   def documents
-    @documents ||= (response['docs'] || []).collect { |doc| document_factory.build(doc, self, options) }
+    # we're treating a single-group response as ungrouped, but all the parts are arranged differently
+    if response['docs'].nil? && !@groups.nil?
+      @documents ||=  (@groups[0].group['groups'][0]['doclist']['docs'] || []).collect{|doc| document_model.new(doc, self) }
+    elsif !response['docs'].nil?
+      @documents ||= (response['docs'] || []).collect{|doc| document_model.new(doc, self) }
+    end
+    # forked before change to use document_factory (reproduced below)
+    # @documents ||= (response['docs'] || []).collect { |doc| document_factory.build(doc, self, options) }
   end
   alias_method :docs, :documents
 
