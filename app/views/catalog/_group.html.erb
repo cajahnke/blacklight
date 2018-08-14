@@ -1,12 +1,16 @@
 <% # container for all groups in index view -%>
 <div id="groups">
-  <%- @response.groups.each do |g| %>
-    <h2 class="group-key"><%= g.key %></h2>
-    <div class="grouped-documents">
+  <ul>
+  <%- @response.groups.each_with_index do |g,i| %>
+    <li class="group-key"><a href="#group-<%=i%>"><%= g.key == 'url' ? 'Web Pages' : g.key%></a></li>
+  <%- end %>
+  </ul>
+  <%- @response.groups.each_with_index do |g,i| %>
+    <div class="grouped-documents" id="group-<%=i%>">
       <%= render_document_index g.docs %>
+      <%- if g.total > @response.group_limit %>
+        <%= link_to t('blacklight.search.group.more'), add_group_facet_params_and_redirect(g), :class => 'more-in-group' %>
+      <%- end %>
     </div>
-    <%- if g.total > @response.group_limit %>
-      <%= link_to t('blacklight.search.group.more'), add_group_facet_params_and_redirect(g), :class => 'more-in-group' %>
-    <%- end %>
   <%- end %>
 </div>
